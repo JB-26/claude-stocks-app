@@ -725,7 +725,7 @@ The following steps are ordered with dependencies respected. Each step is indepe
 |---|---|---|---|
 | 1 | ✅ Scaffold project: run `deno run -A npm:create-next-app@latest`, configure `deno.json` tasks, install Shadcn CLI, configure Tailwind v4, commit `.env.example` | Low | — |
 | 2 | ✅ Implement root layout (`app/layout.tsx`): load DM Sans via `next/font/google`, bind to `--font-dm-sans` CSS variable, configure `@theme {}` in `globals.css`, dark background, global metadata | Low | 1 |
-| 3 | Implement Homepage (`app/page.tsx`, `SearchBar`, `Footer`) with static layout only (no API calls yet) | Low | 2 |
+| 3 | ✅ Implement Homepage (`app/page.tsx`, `SearchBar`, `Footer`) with static layout only (no API calls yet) | Low | 2 |
 | 4 | Implement `lib/finnhub/types.ts` with all response interfaces (including `QuoteResponse` with `isMarketOpen`) | Low | 1 |
 | 5 | Implement `lib/finnhub/client.ts` with all four fetch functions and `server-only` guard | Medium | 4 |
 | 6 | Implement `lib/cache.ts` TTL cache | Low | 1 |
