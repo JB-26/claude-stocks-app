@@ -33,7 +33,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
-        <div className="mb-8">
+        <div className="mb-8 border-b border-zinc-800 pb-8">
           <p className="mb-2 text-sm font-medium uppercase tracking-widest text-zinc-500">
             {ticker}
           </p>

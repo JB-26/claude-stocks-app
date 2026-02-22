@@ -738,7 +738,7 @@ The following steps are ordered with dependencies respected. Each step is indepe
 | 13 | ✅ Wire `CompanySelector` sessionStorage persistence and router navigation | Low | 9, 10, 11, 12 |
 | 14 | ✅ Write unit tests for `cache.ts`, `utils.ts` (including `isMarketOpen` logic and `RANGE_DAYS` mapping), `finnhub/client.ts` | Medium | 5, 6 |
 | 15 | ✅ Write Playwright E2E tests for all three flows with API route mocking (include market-closed and range-selector scenarios) | High | 8, 10, 11, 12 |
-| 16 | Final styling pass: professional monochrome theme, button colour semantics, DM Sans typography verification | Medium | 10, 11, 12 |
+| 16 | ✅ Final styling pass: professional monochrome theme, button colour semantics, DM Sans typography verification | Medium | 10, 11, 12 |
 
 ---
 
