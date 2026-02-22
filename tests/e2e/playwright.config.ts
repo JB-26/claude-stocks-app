@@ -13,5 +13,7 @@ export default defineConfig({
     url: "http://localhost:3000",
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
+    // process.cwd() is the repo root when invoked via `deno task test:e2e`
+    cwd: process.cwd(),
   },
 });

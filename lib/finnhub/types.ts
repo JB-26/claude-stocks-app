@@ -77,6 +77,18 @@ export interface QuoteResponse {
   isMarketOpen: boolean;
 }
 
+/** Raw Finnhub company profile response */
+export interface FinnhubProfile {
+  logo: string;  // URL, may be empty string
+  name: string;
+}
+
+/** Profile data returned by GET /api/stock/profile */
+export interface ProfileResponse {
+  logo: string;
+  name: string;
+}
+
 /** Candle data returned by GET /api/stock/candles */
 export interface CandlesResponse {
   t: number[]; // Unix timestamps

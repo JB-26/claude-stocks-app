@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'feature/**', 'features/**', 'fix/**', 'chore/**', 'test/**', 'docs/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno and npm packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.deno
+            node_modules
+          key: ${{ runner.os }}-deno-${{ hashFiles('deno.json', 'package.json') }}
+          restore-keys: ${{ runner.os }}-deno-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run unit tests
+        run: deno task test
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno and npm packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.deno
+            node_modules
+          key: ${{ runner.os }}-deno-${{ hashFiles('deno.json', 'package.json') }}
+          restore-keys: ${{ runner.os }}-deno-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Install Playwright Chromium and OS dependencies
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        run: deno task test:e2e
+        env:
+          # A real key is not needed — all /api/stock/* calls are mocked via
+          # page.route() in the specs, so the route handlers are never reached.
+          FINNHUB_API_KEY: ci-dummy-key
+          CI: true
