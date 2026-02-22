@@ -723,22 +723,22 @@ The following steps are ordered with dependencies respected. Each step is indepe
 
 | # | Task | Complexity | Depends On |
 |---|---|---|---|
-| 1 | Scaffold project: run `deno run -A npm:create-next-app@latest`, configure `deno.json` tasks, install Shadcn CLI, configure Tailwind v4, commit `.env.example` | Low | — |
-| 2 | Implement root layout (`app/layout.tsx`): load DM Sans via `next/font/google`, bind to `--font-dm-sans` CSS variable, configure `@theme {}` in `globals.css`, dark background, global metadata | Low | 1 |
-| 3 | Implement Homepage (`app/page.tsx`, `SearchBar`, `Footer`) with static layout only (no API calls yet) | Low | 2 |
-| 4 | Implement `lib/finnhub/types.ts` with all response interfaces (including `QuoteResponse` with `isMarketOpen`) | Low | 1 |
-| 5 | Implement `lib/finnhub/client.ts` with all four fetch functions and `server-only` guard | Medium | 4 |
-| 6 | Implement `lib/cache.ts` TTL cache | Low | 1 |
-| 7 | Implement `/api/stock/search/route.ts` Route Handler with US-only filtering; wire `SearchBar` to call it | Medium | 5, 6 |
-| 8 | Implement `SearchResults` dropdown; wire end-to-end search → navigation to `/dashboard?symbol=` | Medium | 7 |
-| 9 | Implement `app/dashboard/page.tsx` shell and `CompanySelector` (static, no data yet) | Low | 2 |
-| 10 | Implement `/api/stock/quote/route.ts` (with `isMarketOpen` computation) and `PriceHeader` component (with market closed badge and `Alert` error state) | Medium | 5, 6, 9 |
-| 11 | Implement `/api/stock/candles/route.ts` (with `range` parameter) and `StockChart` component (with 1M/3M/1Y range selector and `Alert` error state; Chart.js dynamic import) | High | 5, 6, 9 |
-| 12 | Implement `/api/stock/news/route.ts` and `NewsFeed` component (with `Alert` error state) | Medium | 5, 6, 9 |
-| 13 | Wire `CompanySelector` sessionStorage persistence and router navigation | Low | 9, 10, 11, 12 |
-| 14 | Write unit tests for `cache.ts`, `utils.ts` (including `isMarketOpen` logic and `RANGE_DAYS` mapping), `finnhub/client.ts` | Medium | 5, 6 |
-| 15 | Write Playwright E2E tests for all three flows with API route mocking (include market-closed and range-selector scenarios) | High | 8, 10, 11, 12 |
-| 16 | Final styling pass: professional monochrome theme, button colour semantics, DM Sans typography verification | Medium | 10, 11, 12 |
+| 1 | ✅ Scaffold project: run `deno run -A npm:create-next-app@latest`, configure `deno.json` tasks, install Shadcn CLI, configure Tailwind v4, commit `.env.example` | Low | — |
+| 2 | ✅ Implement root layout (`app/layout.tsx`): load DM Sans via `next/font/google`, bind to `--font-dm-sans` CSS variable, configure `@theme {}` in `globals.css`, dark background, global metadata | Low | 1 |
+| 3 | ✅ Implement Homepage (`app/page.tsx`, `SearchBar`, `Footer`) with static layout only (no API calls yet) | Low | 2 |
+| 4 | ✅ Implement `lib/finnhub/types.ts` with all response interfaces (including `QuoteResponse` with `isMarketOpen`) | Low | 1 |
+| 5 | ✅ Implement `lib/finnhub/client.ts` with all four fetch functions and `server-only` guard | Medium | 4 |
+| 6 | ✅ Implement `lib/cache.ts` TTL cache | Low | 1 |
+| 7 | ✅ Implement `/api/stock/search/route.ts` Route Handler with US-only filtering; wire `SearchBar` to call it | Medium | 5, 6 |
+| 8 | ✅ Implement `SearchResults` dropdown; wire end-to-end search → navigation to `/dashboard?symbol=` | Medium | 7 |
+| 9 | ✅ Implement `app/dashboard/page.tsx` shell and `CompanySelector` (static, no data yet) | Low | 2 |
+| 10 | ✅ Implement `/api/stock/quote/route.ts` (with `isMarketOpen` computation) and `PriceHeader` component (with market closed badge and `Alert` error state) | Medium | 5, 6, 9 |
+| 11 | ✅ Implement `/api/stock/candles/route.ts` (with `range` parameter) and `StockChart` component (with 1M/3M/1Y range selector and `Alert` error state; Chart.js dynamic import) | High | 5, 6, 9 |
+| 12 | ✅ Implement `/api/stock/news/route.ts` and `NewsFeed` component (with `Alert` error state) | Medium | 5, 6, 9 |
+| 13 | ✅ Wire `CompanySelector` sessionStorage persistence and router navigation | Low | 9, 10, 11, 12 |
+| 14 | ✅ Write unit tests for `cache.ts`, `utils.ts` (including `isMarketOpen` logic and `RANGE_DAYS` mapping), `finnhub/client.ts` | Medium | 5, 6 |
+| 15 | ✅ Write Playwright E2E tests for all three flows with API route mocking (include market-closed and range-selector scenarios) | High | 8, 10, 11, 12 |
+| 16 | ✅ Final styling pass: professional monochrome theme, button colour semantics, DM Sans typography verification | Medium | 10, 11, 12 |
 
 ---
 

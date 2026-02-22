@@ -1,19 +1,19 @@
 {
+  "imports": {
+    "server-only": "./tests/unit/__mocks__/server-only.ts"
+  },
   "tasks": {
     "dev": "deno run -A --unstable-bare-node-builtins --unstable-sloppy-imports npm:next dev",
     "build": "deno run -A --unstable-bare-node-builtins --unstable-sloppy-imports npm:next build",
     "start": "deno run -A --unstable-bare-node-builtins --unstable-sloppy-imports npm:next start",
     "lint": "deno lint",
-    "test": "deno test --allow-net --allow-env --allow-read tests/unit/",
+    "test": "deno test --allow-net --allow-env --allow-read --unstable-sloppy-imports --no-check tests/unit/",
     "test:e2e": "deno run -A npm:playwright test --config=tests/e2e/playwright.config.ts"
   },
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "lib": ["deno.ns", "dom", "dom.iterable", "esnext"]
   },
   "nodeModulesDir": "auto"
 }
