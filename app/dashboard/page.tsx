@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import CompanySelector from "@/components/dashboard/CompanySelector";
 import PriceHeader from "@/components/dashboard/PriceHeader";
+import ChartWrapper from "@/components/dashboard/ChartWrapper";
+import NewsFeed from "@/components/dashboard/NewsFeed";
 
 interface Props {
   searchParams: Promise<{ symbol?: string }>;
@@ -38,8 +40,11 @@ export default async function DashboardPage({ searchParams }: Props) {
           <PriceHeader symbol={ticker} />
         </div>
 
-        {/* StockChart — Task 11 */}
-        {/* NewsFeed — Task 12 */}
+        <div className="mb-10">
+          <ChartWrapper symbol={ticker} />
+        </div>
+
+        <NewsFeed symbol={ticker} />
       </main>
     </div>
   );

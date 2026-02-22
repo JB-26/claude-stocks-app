@@ -25,8 +25,9 @@ async function finnhubFetch<T>(path: string): Promise<T> {
   });
 
   if (!response.ok) {
+    const body = await response.text().catch(() => "(unreadable body)");
     throw new Error(
-      `Finnhub request failed: ${response.status} ${response.statusText} (${url})`
+      `Finnhub request failed: ${response.status} ${response.statusText} — ${body} (${url})`
     );
   }
 
