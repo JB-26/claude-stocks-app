@@ -731,8 +731,8 @@ The following steps are ordered with dependencies respected. Each step is indepe
 | 6 | ✅ Implement `lib/cache.ts` TTL cache | Low | 1 |
 | 7 | ✅ Implement `/api/stock/search/route.ts` Route Handler with US-only filtering; wire `SearchBar` to call it | Medium | 5, 6 |
 | 8 | ✅ Implement `SearchResults` dropdown; wire end-to-end search → navigation to `/dashboard?symbol=` | Medium | 7 |
-| 9 | Implement `app/dashboard/page.tsx` shell and `CompanySelector` (static, no data yet) | Low | 2 |
-| 10 | Implement `/api/stock/quote/route.ts` (with `isMarketOpen` computation) and `PriceHeader` component (with market closed badge and `Alert` error state) | Medium | 5, 6, 9 |
+| 9 | ✅ Implement `app/dashboard/page.tsx` shell and `CompanySelector` (static, no data yet) | Low | 2 |
+| 10 | ✅ Implement `/api/stock/quote/route.ts` (with `isMarketOpen` computation) and `PriceHeader` component (with market closed badge and `Alert` error state) | Medium | 5, 6, 9 |
 | 11 | Implement `/api/stock/candles/route.ts` (with `range` parameter) and `StockChart` component (with 1M/3M/1Y range selector and `Alert` error state; Chart.js dynamic import) | High | 5, 6, 9 |
 | 12 | Implement `/api/stock/news/route.ts` and `NewsFeed` component (with `Alert` error state) | Medium | 5, 6, 9 |
 | 13 | Wire `CompanySelector` sessionStorage persistence and router navigation | Low | 9, 10, 11, 12 |
