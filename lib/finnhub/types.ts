@@ -8,7 +8,7 @@ export interface FinnhubSearchResult {
   displaySymbol: string; // e.g. "AAPL"
   symbol: string;        // e.g. "AAPL"
   type: string;          // e.g. "Common Stock"
-  mic: string;           // Market Identifier Code, e.g. "XNAS"
+  mic?: string;          // Market Identifier Code, e.g. "XNAS" (not always present)
 }
 
 export interface FinnhubSearchResponse {

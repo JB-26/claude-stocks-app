@@ -18,6 +18,7 @@
     "npm:react-chartjs-2@^5.2.0": "5.3.1_chart.js@4.5.1_react@19.2.3",
     "npm:react-dom@19.2.3": "19.2.3_react@19.2.3",
     "npm:react@19.2.3": "19.2.3",
+    "npm:server-only@^0.0.1": "0.0.1",
     "npm:shadcn@^3.8.5": "3.8.5_@babel+core@7.29.0_zod@3.25.76_typescript@5.9.3_@types+node@22.19.11",
     "npm:tailwind-merge@^3.5.0": "3.5.0",
     "npm:tailwindcss@4": "4.1.18",
@@ -4680,6 +4681,9 @@
         "send"
       ]
     },
+    "server-only@0.0.1": {
+      "integrity": "sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA=="
+    },
     "set-function-length@1.2.2": {
       "integrity": "sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==",
       "dependencies": [
@@ -5419,6 +5423,7 @@
         "npm:react-chartjs-2@^5.2.0",
         "npm:react-dom@19.2.3",
         "npm:react@19.2.3",
+        "npm:server-only@^0.0.1",
         "npm:shadcn@^3.8.5",
         "npm:tailwind-merge@^3.5.0",
         "npm:tailwindcss@4",
