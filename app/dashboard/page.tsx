@@ -3,6 +3,7 @@ import Link from "next/link";
 import CompanySelector from "@/components/dashboard/CompanySelector";
 import PriceHeader from "@/components/dashboard/PriceHeader";
 import ChartWrapper from "@/components/dashboard/ChartWrapper";
+import CompanyLogo from "@/components/dashboard/CompanyLogo";
 import NewsFeed from "@/components/dashboard/NewsFeed";
 
 interface Props {
@@ -33,11 +34,14 @@ export default async function DashboardPage({ searchParams }: Props) {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
-        <div className="mb-8 border-b border-zinc-800 pb-8">
-          <p className="mb-2 text-sm font-medium uppercase tracking-widest text-zinc-500">
-            {ticker}
-          </p>
-          <PriceHeader symbol={ticker} />
+        <div className="mb-8 flex items-center gap-5 border-b border-zinc-800 pb-8">
+          <CompanyLogo symbol={ticker} />
+          <div>
+            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-zinc-500">
+              {ticker}
+            </p>
+            <PriceHeader symbol={ticker} />
+          </div>
         </div>
 
         <div className="mb-10">

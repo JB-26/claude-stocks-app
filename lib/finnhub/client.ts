@@ -3,6 +3,7 @@ import "server-only";
 import type {
   FinnhubCandles,
   FinnhubNewsArticle,
+  FinnhubProfile,
   FinnhubQuote,
   FinnhubSearchResponse,
 } from "./types";
@@ -53,6 +54,14 @@ export async function getCandles(
 ): Promise<FinnhubCandles> {
   return finnhubFetch<FinnhubCandles>(
     `/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${from}&to=${to}`
+  );
+}
+
+export async function getCompanyProfile(
+  symbol: string
+): Promise<FinnhubProfile> {
+  return finnhubFetch<FinnhubProfile>(
+    `/stock/profile2?symbol=${encodeURIComponent(symbol)}`
   );
 }
 
