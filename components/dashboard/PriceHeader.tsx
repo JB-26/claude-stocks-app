@@ -36,7 +36,7 @@ export default function PriceHeader({ symbol }: Props) {
 
   if (!quote) {
     return (
-      <div className="flex animate-pulse flex-col gap-2">
+      <div className="flex animate-pulse motion-reduce:animate-none flex-col gap-2">
         <div className="h-10 w-40 rounded bg-zinc-800" />
         <div className="h-5 w-32 rounded bg-zinc-800" />
       </div>

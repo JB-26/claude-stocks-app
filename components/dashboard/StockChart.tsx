@@ -27,9 +27,10 @@ const RANGES: ChartRange[] = ["1M", "3M", "1Y"];
 
 interface Props {
   symbol: string;
+  compact?: boolean;
 }
 
-export default function StockChart({ symbol }: Props) {
+export default function StockChart({ symbol, compact }: Props) {
   const [range, setRange] = useState<ChartRange>("3M");
   const [candles, setCandles] = useState<CandlesResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,9 +174,9 @@ export default function StockChart({ symbol }: Props) {
         </div>
       </div>
 
-      <div className="relative h-72 w-full">
+      <div className={`relative ${compact ? "h-52" : "h-72"} w-full`}>
         {isLoading ? (
-          <div className="absolute inset-0 animate-pulse rounded-lg bg-zinc-800" />
+          <div className="absolute inset-0 animate-pulse motion-reduce:animate-none rounded-lg bg-zinc-800" />
         ) : candles ? (
           <Line
             ref={chartRef}

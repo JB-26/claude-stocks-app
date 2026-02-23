@@ -1,23 +1,28 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import CompanySelector from "@/components/dashboard/CompanySelector";
-import PriceHeader from "@/components/dashboard/PriceHeader";
-import ChartWrapper from "@/components/dashboard/ChartWrapper";
-import CompanyLogo from "@/components/dashboard/CompanyLogo";
-import NewsFeed from "@/components/dashboard/NewsFeed";
+import ViewSelector from "@/components/dashboard/ViewSelector";
+import CompanyPanel from "@/components/dashboard/CompanyPanel";
+import PlaceholderPanel from "@/components/dashboard/PlaceholderPanel";
+import { parseDashboardParams } from "@/lib/view";
 
 interface Props {
-  searchParams: Promise<{ symbol?: string }>;
+  searchParams: Promise<{
+    symbol?: string;
+    view?: string;
+    symbol2?: string;
+    symbol3?: string;
+  }>;
 }
 
 export default async function DashboardPage({ searchParams }: Props) {
-  const { symbol } = await searchParams;
+  const rawParams = await searchParams;
 
-  if (!symbol) {
+  if (!rawParams.symbol) {
     redirect("/");
   }
 
-  const ticker = symbol.toUpperCase();
+  const { symbol: ticker, view, symbol2, symbol3 } = parseDashboardParams(rawParams);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -27,28 +32,48 @@ export default async function DashboardPage({ searchParams }: Props) {
             href="/"
             className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-100"
           >
-            ← Search
+            &larr; Search
           </Link>
-          <CompanySelector currentSymbol={ticker} />
+          <div className="flex items-center gap-2">
+            <CompanySelector currentSymbol={ticker} />
+            <ViewSelector currentSymbol={ticker} />
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
-        <div className="mb-8 flex items-center gap-5 border-b border-zinc-800 pb-8">
-          <CompanyLogo symbol={ticker} />
-          <div>
-            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-zinc-500">
-              {ticker}
-            </p>
-            <PriceHeader symbol={ticker} />
+      <main className="mx-auto w-full max-w-7xl flex-1">
+        {view === "default" && <CompanyPanel symbol={ticker} />}
+
+        {view === "split" && (
+          <div className="grid grid-cols-2 divide-x divide-zinc-800">
+            <CompanyPanel symbol={ticker} compact showNews={false} />
+            {symbol2 ? (
+              <CompanyPanel symbol={symbol2} compact showNews={false} />
+            ) : (
+              <PlaceholderPanel />
+            )}
           </div>
-        </div>
+        )}
 
-        <div className="mb-10">
-          <ChartWrapper symbol={ticker} />
-        </div>
-
-        <NewsFeed symbol={ticker} />
+        {view === "multi" && (
+          <>
+            <div className="grid grid-cols-2 divide-x divide-zinc-800 border-b border-zinc-800">
+              <CompanyPanel symbol={ticker} compact showNews={false} />
+              {symbol2 ? (
+                <CompanyPanel symbol={symbol2} compact showNews={false} />
+              ) : (
+                <PlaceholderPanel />
+              )}
+            </div>
+            <div>
+              {symbol3 ? (
+                <CompanyPanel symbol={symbol3} />
+              ) : (
+                <PlaceholderPanel />
+              )}
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

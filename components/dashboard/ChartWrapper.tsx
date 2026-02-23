@@ -4,15 +4,19 @@ import dynamic from "next/dynamic";
 
 const StockChart = dynamic(() => import("./StockChart"), {
   ssr: false,
-  loading: () => (
-    <div className="h-72 w-full animate-pulse rounded-lg bg-zinc-800" />
-  ),
 });
 
 interface Props {
   symbol: string;
+  compact?: boolean;
 }
 
-export default function ChartWrapper({ symbol }: Props) {
-  return <StockChart symbol={symbol} />;
+export default function ChartWrapper({ symbol, compact }: Props) {
+  const heightClass = compact ? "h-52" : "h-72";
+
+  return (
+    <div className={heightClass}>
+      <StockChart symbol={symbol} compact={compact} />
+    </div>
+  );
 }
