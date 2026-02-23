@@ -45,7 +45,7 @@ export default function NewsFeed({ symbol }: Props) {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-24 animate-pulse rounded-lg bg-zinc-800"
+              className="h-24 animate-pulse motion-reduce:animate-none rounded-lg bg-zinc-800"
             />
           ))}
         </div>
