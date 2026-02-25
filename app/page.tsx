@@ -30,13 +30,13 @@ export default function Home() {
             )}
           </div>
 
+          <h1 className="text-center text-2xl font-medium tracking-tight text-zinc-200">
+            Track any stock, instantly.
+          </h1>
+
           <SearchBar />
 
           <RecentlyViewedChips />
-
-          <h1 className="text-center text-2xl font-medium tracking-tight text-zinc-400">
-            Track any stock, instantly.
-          </h1>
         </div>
       </main>
       <Footer />

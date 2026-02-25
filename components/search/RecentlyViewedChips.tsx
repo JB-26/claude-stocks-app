@@ -23,7 +23,7 @@ export default function RecentlyViewedChips() {
         <Link
           key={symbol}
           href={`/dashboard?symbol=${symbol}`}
-          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-mono text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
+          className="rounded-full border border-zinc-700 px-4 py-2 text-xs font-mono text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
         >
           {symbol}
         </Link>
