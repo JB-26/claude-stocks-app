@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function ChartWrapper({ symbol, compact }: Props) {
-  const heightClass = compact ? "h-52" : "h-72";
+  const heightClass = compact ? "h-36 sm:h-44 md:h-52" : "h-72";
 
   return (
     <div className={heightClass}>

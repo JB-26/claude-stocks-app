@@ -20,7 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSans.variable} dark`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <header className="fixed top-0 left-0 z-50 w-full border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="mx-auto flex h-10 max-w-7xl items-center px-6">
+            <span className="text-sm font-semibold tracking-tight text-zinc-500">
+              Claude Stocks
+            </span>
+          </div>
+        </header>
+        <div className="pt-10">{children}</div>
+      </body>
     </html>
   );
 }

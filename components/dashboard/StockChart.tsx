@@ -153,7 +153,7 @@ export default function StockChart({ symbol, compact }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-zinc-500">
+        <h2 className={`font-medium uppercase tracking-widest text-zinc-500 ${compact ? "text-[10px] sm:text-xs md:text-sm" : "text-sm"}`}>
           Price History
         </h2>
         <div className="flex overflow-hidden rounded-md border border-zinc-700">
@@ -162,7 +162,7 @@ export default function StockChart({ symbol, compact }: Props) {
               key={r}
               type="button"
               onClick={() => setRange(r)}
-              className={`px-3 py-1 text-xs font-medium transition-colors ${
+              className={`font-medium transition-colors ${compact ? "px-2 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-xs" : "px-3 py-1 text-xs"} ${
                 range === r
                   ? "bg-zinc-100 text-zinc-900"
                   : "bg-transparent text-zinc-400 hover:text-zinc-100"
@@ -174,7 +174,7 @@ export default function StockChart({ symbol, compact }: Props) {
         </div>
       </div>
 
-      <div className={`relative ${compact ? "h-52" : "h-72"} w-full`}>
+      <div className={`relative ${compact ? "h-36 sm:h-44 md:h-52" : "h-72"} w-full`}>
         {isLoading ? (
           <div className="absolute inset-0 animate-pulse motion-reduce:animate-none rounded-lg bg-zinc-800" />
         ) : candles ? (

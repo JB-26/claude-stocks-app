@@ -45,7 +45,7 @@ export default async function DashboardPage({ searchParams }: Props) {
         {view === "default" && <CompanyPanel symbol={ticker} />}
 
         {view === "split" && (
-          <div className="grid grid-cols-2 divide-x divide-zinc-800">
+          <div className="grid grid-cols-1 divide-y divide-zinc-800 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
             <CompanyPanel symbol={ticker} compact showNews={false} />
             {symbol2 ? (
               <CompanyPanel symbol={symbol2} compact showNews={false} />
@@ -57,7 +57,7 @@ export default async function DashboardPage({ searchParams }: Props) {
 
         {view === "multi" && (
           <>
-            <div className="grid grid-cols-2 divide-x divide-zinc-800 border-b border-zinc-800">
+            <div className="grid grid-cols-1 divide-y divide-zinc-800 border-b border-zinc-800 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
               <CompanyPanel symbol={ticker} compact showNews={false} />
               {symbol2 ? (
                 <CompanyPanel symbol={symbol2} compact showNews={false} />
