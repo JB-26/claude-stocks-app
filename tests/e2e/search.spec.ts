@@ -63,6 +63,9 @@ test("selecting a result navigates to the dashboard", async ({ page }) => {
   await page.route("**/api/stock/news*", (route) =>
     route.fulfill({ json: NEWS_FIXTURE })
   );
+  await page.route("**/api/stock/profile*", (route) =>
+    route.fulfill({ json: { logo: "", name: "" } })
+  );
 
   await page.goto("/");
   await page.getByRole("searchbox").fill("Apple");
