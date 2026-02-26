@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCompanyNews } from "@/lib/finnhub/client";
 import { getCached, setCached } from "@/lib/cache";
+import { checkRateLimit } from "@/lib/ratelimit";
+import { sanitizeUrl } from "@/lib/sanitize-url";
 import type { NewsArticle } from "@/lib/finnhub/types";
 
 const NEWS_TTL_MS = 5 * 60_000; // 5 minutes
@@ -12,6 +14,10 @@ function toDateString(date: Date): string {
 }
 
 export async function GET(request: Request) {
+  if (!checkRateLimit(request)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol") ?? "";
 
@@ -36,15 +42,19 @@ export async function GET(request: Request) {
       toDateString(to)
     );
 
-    const articles: NewsArticle[] = raw.slice(0, MAX_ARTICLES).map((a) => ({
-      id: a.id,
-      datetime: a.datetime,
-      headline: a.headline,
-      source: a.source,
-      summary: a.summary,
-      url: a.url,
-      image: a.image,
-    }));
+    const articles: NewsArticle[] = raw.slice(0, MAX_ARTICLES).flatMap((a) => {
+      const url = sanitizeUrl(a.url);
+      if (url === null) return [];
+      return [{
+        id: a.id,
+        datetime: a.datetime,
+        headline: a.headline,
+        source: a.source,
+        summary: a.summary,
+        url,
+        image: sanitizeUrl(a.image) ?? "",
+      }];
+    });
 
     const response = { articles };
     setCached(cacheKey, response, NEWS_TTL_MS);

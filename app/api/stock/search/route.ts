@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { searchSymbols } from "@/lib/finnhub/client";
 import { getCached, setCached } from "@/lib/cache";
+import { checkRateLimit } from "@/lib/ratelimit";
 import type { SearchResult } from "@/lib/finnhub/types";
 
 // MIC codes for US-listed exchanges
@@ -23,6 +24,10 @@ const US_MIC_CODES = new Set([
 const SEARCH_TTL_MS = 60_000; // 60 seconds
 
 export async function GET(request: Request) {
+  if (!checkRateLimit(request)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("q") ?? "";
 

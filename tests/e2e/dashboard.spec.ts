@@ -47,6 +47,9 @@ function mockDashboard(
   page.route("**/api/stock/news*", (route) =>
     route.fulfill({ json: NEWS_FIXTURE })
   );
+  page.route("**/api/stock/profile*", (route) =>
+    route.fulfill({ json: { logo: "", name: "" } })
+  );
 }
 
 test("dashboard shows current price, chart, and news", async ({ page }) => {

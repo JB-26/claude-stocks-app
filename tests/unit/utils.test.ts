@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import {
   formatChange,
   formatPercent,
@@ -91,7 +91,7 @@ Deno.test("isMarketOpen: returns a boolean", () => {
 // Feb 28 = Saturday, Mar 1 = Sunday. ET = UTC-5 (EST) in February.
 function stubDate(utcMs: number): { restore: () => void } {
   const OriginalDate = globalThis.Date;
-  const fakeNow = new OriginalDate(utcMs);
+  const _fakeNow = new OriginalDate(utcMs);
 
   // deno-lint-ignore no-explicit-any
   const FakeDate = function (...args: any[]) {

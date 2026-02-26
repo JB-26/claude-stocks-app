@@ -1,4 +1,5 @@
 import "server-only";
+import process from "node:process";
 
 import type {
   FinnhubCandles,
@@ -27,9 +28,9 @@ async function finnhubFetch<T>(path: string): Promise<T> {
 
   if (!response.ok) {
     const body = await response.text().catch(() => "(unreadable body)");
-    throw new Error(
-      `Finnhub request failed: ${response.status} ${response.statusText} — ${body} (${url})`
-    );
+    const safePath = new URL(url).pathname;
+    const detail = process.env.NODE_ENV === "development" ? ` — ${body}` : "";
+    throw new Error(`Finnhub request failed: ${response.status} ${safePath}${detail}`);
   }
 
   return response.json() as Promise<T>;
@@ -38,13 +39,13 @@ async function finnhubFetch<T>(path: string): Promise<T> {
 export async function searchSymbols(
   query: string
 ): Promise<FinnhubSearchResponse> {
-  return finnhubFetch<FinnhubSearchResponse>(
+  return await finnhubFetch<FinnhubSearchResponse>(
     `/search?q=${encodeURIComponent(query)}`
   );
 }
 
 export async function getQuote(symbol: string): Promise<FinnhubQuote> {
-  return finnhubFetch<FinnhubQuote>(`/quote?symbol=${encodeURIComponent(symbol)}`);
+  return await finnhubFetch<FinnhubQuote>(`/quote?symbol=${encodeURIComponent(symbol)}`);
 }
 
 export async function getCandles(
@@ -52,7 +53,7 @@ export async function getCandles(
   from: number,
   to: number
 ): Promise<FinnhubCandles> {
-  return finnhubFetch<FinnhubCandles>(
+  return await finnhubFetch<FinnhubCandles>(
     `/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${from}&to=${to}`
   );
 }
@@ -60,7 +61,7 @@ export async function getCandles(
 export async function getCompanyProfile(
   symbol: string
 ): Promise<FinnhubProfile> {
-  return finnhubFetch<FinnhubProfile>(
+  return await finnhubFetch<FinnhubProfile>(
     `/stock/profile2?symbol=${encodeURIComponent(symbol)}`
   );
 }
@@ -70,7 +71,7 @@ export async function getCompanyNews(
   from: string,
   to: string
 ): Promise<FinnhubNewsArticle[]> {
-  return finnhubFetch<FinnhubNewsArticle[]>(
+  return await finnhubFetch<FinnhubNewsArticle[]>(
     `/company-news?symbol=${encodeURIComponent(symbol)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
   );
 }
