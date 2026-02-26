@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getQuote } from "@/lib/finnhub/client";
 import { getCached, setCached } from "@/lib/cache";
+import { checkRateLimit } from "@/lib/ratelimit";
 import { isMarketOpen } from "@/lib/utils";
 import type { QuoteResponse } from "@/lib/finnhub/types";
 
@@ -8,6 +9,10 @@ const QUOTE_TTL_MS = 60_000; // 60 seconds
 const SYMBOL_RE = /^[A-Z]{1,10}$/;
 
 export async function GET(request: Request) {
+  if (!checkRateLimit(request)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol") ?? "";
 

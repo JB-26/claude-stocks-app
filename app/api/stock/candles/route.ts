@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getHistoricalCandles } from "@/lib/yahoo";
 import { getCached, setCached } from "@/lib/cache";
+import { checkRateLimit } from "@/lib/ratelimit";
 import type { CandlesResponse, ChartRange } from "@/lib/finnhub/types";
 
 const CANDLES_TTL_MS = 60_000; // 60 seconds
@@ -8,6 +9,10 @@ const SYMBOL_RE = /^[A-Z]{1,10}$/;
 const VALID_RANGES: ChartRange[] = ["1M", "3M", "1Y"];
 
 export async function GET(request: Request) {
+  if (!checkRateLimit(request)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const symbol = searchParams.get("symbol") ?? "";
   const range = searchParams.get("range") ?? "";

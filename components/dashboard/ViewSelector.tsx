@@ -43,7 +43,7 @@ const VIEW_OPTIONS: { mode: ViewMode; label: string }[] = [
   { mode: "multi", label: "Multi View" },
 ];
 
-export default function ViewSelector({ currentSymbol }: Props) {
+export default function ViewSelector({ currentSymbol: _currentSymbol }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

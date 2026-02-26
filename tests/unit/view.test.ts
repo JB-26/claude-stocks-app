@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { parseDashboardParams } from "../../lib/view.ts";
 
 Deno.test("parseDashboardParams: default view when view param absent", () => {
