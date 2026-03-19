@@ -129,3 +129,29 @@
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='1' cy='1' r='1' fill='rgba(255%2C255%2C255%2C0.055)'/%3E%3C%2Fsvg%3E");
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Ticker tape marquee animation
+   Scrolls the ticker track leftward by exactly 50% so that the duplicated
+   set of items creates a seamless infinite loop.
+   The @media prefers-reduced-motion block disables the animation for users
+   who have opted in to reduced motion at the OS level.
+--------------------------------------------------------------------------- */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker-scroll 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}

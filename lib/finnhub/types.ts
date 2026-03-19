@@ -107,6 +107,14 @@ export interface NewsArticle {
   image: string;
 }
 
+/** A single ticker entry returned by GET /api/stock/movers */
+export interface TickerMover {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
 // ---------------------------------------------------------------------------
 // Shared constants used by both the Route Handler and StockChart
 // ---------------------------------------------------------------------------

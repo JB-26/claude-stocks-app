@@ -1,6 +1,7 @@
 import SearchBar from "@/components/search/SearchBar";
 import RecentlyViewedChips from "@/components/search/RecentlyViewedChips";
 import Footer from "@/components/layout/Footer";
+import TickerTape from "@/components/homepage/TickerTape";
 import { isMarketOpen, getNextMarketOpenLabel } from "@/lib/utils";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <TickerTape />
       <main className="flex flex-1 flex-col items-center justify-center px-6">
         <div className="flex w-full max-w-2xl flex-col items-center gap-5">
           {/* Market Status Bar */}

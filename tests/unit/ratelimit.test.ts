@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertGreater } from "@std/assert";
 import { checkRateLimit } from "../../lib/ratelimit.ts";
 
 // ---------------------------------------------------------------------------
@@ -22,21 +22,21 @@ function makeRequest(ip: string | null, path: string): Request {
 // RL-01: 30 requests from same IP+route within window — all allowed
 // ---------------------------------------------------------------------------
 
-Deno.test("ratelimit RL-01: first 30 requests from same IP+route all return true", () => {
+Deno.test("ratelimit RL-01: first 30 requests from same IP+route all return allowed", () => {
   const ip = "10.0.1.1";
   const path = "/api/stock/rl01";
 
   for (let i = 0; i < 30; i++) {
-    const allowed = checkRateLimit(makeRequest(ip, path));
-    assertEquals(allowed, true, `Request ${i + 1} should be allowed`);
+    const result = checkRateLimit(makeRequest(ip, path));
+    assertEquals(result.allowed, true, `Request ${i + 1} should be allowed`);
   }
 });
 
 // ---------------------------------------------------------------------------
-// RL-02: 31st request from same IP+route within window — rejected
+// RL-02: 31st request from same IP+route within window — rejected with retryAfterMs
 // ---------------------------------------------------------------------------
 
-Deno.test("ratelimit RL-02: 31st request from same IP+route within window returns false", () => {
+Deno.test("ratelimit RL-02: 31st request from same IP+route within window returns not allowed with retryAfterMs", () => {
   const ip = "10.0.2.1";
   const path = "/api/stock/rl02";
 
@@ -45,21 +45,22 @@ Deno.test("ratelimit RL-02: 31st request from same IP+route within window return
     checkRateLimit(makeRequest(ip, path));
   }
 
-  // The 31st request must be rejected
-  const allowed = checkRateLimit(makeRequest(ip, path));
-  assertEquals(allowed, false);
+  // The 31st request must be rejected with a positive retryAfterMs
+  const result = checkRateLimit(makeRequest(ip, path));
+  assertEquals(result.allowed, false);
+  assertGreater(result.retryAfterMs, 0);
 });
 
 // ---------------------------------------------------------------------------
-// RL-03: No x-forwarded-for header — does not throw, returns true
+// RL-03: No x-forwarded-for header — does not throw, returns allowed
 // ---------------------------------------------------------------------------
 
-Deno.test("ratelimit RL-03: request with no x-forwarded-for header does not throw and returns true", () => {
+Deno.test("ratelimit RL-03: request with no x-forwarded-for header does not throw and returns allowed", () => {
   // No IP header — function should fall back to "unknown" key
   // Use a unique path so we don't collide with other no-header tests
   const req = new Request("http://localhost/api/stock/rl03");
-  const allowed = checkRateLimit(req);
-  assertEquals(allowed, true);
+  const result = checkRateLimit(req);
+  assertEquals(result.allowed, true);
 });
 
 // ---------------------------------------------------------------------------
@@ -76,10 +77,10 @@ Deno.test("ratelimit RL-04: exhausting limit on one route does not affect a diff
     checkRateLimit(makeRequest(ip, quotePath));
   }
   // 31st request on quote should be rejected
-  assertEquals(checkRateLimit(makeRequest(ip, quotePath)), false);
+  assertEquals(checkRateLimit(makeRequest(ip, quotePath)).allowed, false);
 
   // But the first request on the search route from same IP should still pass
-  assertEquals(checkRateLimit(makeRequest(ip, searchPath)), true);
+  assertEquals(checkRateLimit(makeRequest(ip, searchPath)).allowed, true);
 });
 
 // ---------------------------------------------------------------------------
@@ -96,19 +97,19 @@ Deno.test("ratelimit RL-05: x-forwarded-for with proxy chain uses only the first
   const rejectedReq = new Request(`http://localhost${path}`, {
     headers: { "x-forwarded-for": "1.2.3.4" },
   });
-  assertEquals(checkRateLimit(rejectedReq), false);
+  assertEquals(checkRateLimit(rejectedReq).allowed, false);
 
   // A request with "1.2.3.4, 5.6.7.8" should also be rejected because
   // the extracted IP is "1.2.3.4" (same exhausted key)
   const chainedReq = new Request(`http://localhost${path}`, {
     headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
   });
-  assertEquals(checkRateLimit(chainedReq), false);
+  assertEquals(checkRateLimit(chainedReq).allowed, false);
 
   // A fresh request for "5.6.7.8" alone on the same path is still allowed,
   // confirming that 5.6.7.8 is a separate key
   const freshReq = new Request(`http://localhost${path}`, {
     headers: { "x-forwarded-for": "5.6.7.8" },
   });
-  assertEquals(checkRateLimit(freshReq), true);
+  assertEquals(checkRateLimit(freshReq).allowed, true);
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useRetryableFetch } from "@/hooks/useRetryableFetch";
 import type { CandlesResponse, ChartRange } from "@/lib/finnhub/types";
 
 ChartJS.register(
@@ -32,34 +33,17 @@ interface Props {
 
 export default function StockChart({ symbol, compact }: Props) {
   const [range, setRange] = useState<ChartRange>("3M");
-  const [candles, setCandles] = useState<CandlesResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const chartRef = useRef<ChartJS<"line"> | null>(null);
 
-  useEffect(() => {
-    setCandles(null);
-    setError(null);
-    setIsLoading(true);
+  const url = `/api/stock/candles?symbol=${symbol}&range=${range}`;
+  const { data: candles, error, isLoading, retryAfterSeconds, retry } =
+    useRetryableFetch<CandlesResponse>(url, { label: "chart data" });
 
-    fetch(`/api/stock/candles?symbol=${symbol}&range=${range}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch candles");
-        return res.json() as Promise<CandlesResponse>;
-      })
-      .then((data) => {
-        if (data.s === "no_data") {
-          setError("No historical data available for this symbol.");
-        } else {
-          setCandles(data);
-        }
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError("Unable to load chart data. Please try again.");
-        setIsLoading(false);
-      });
-  }, [symbol, range]);
+  // Check for "no_data" status in the response.
+  const noData = candles?.s === "no_data";
+  const effectiveError = noData
+    ? "No historical data available for this symbol."
+    : error;
 
   function getGradient(ctx: CanvasRenderingContext2D, chartArea: { top: number; bottom: number }) {
     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
@@ -68,10 +52,28 @@ export default function StockChart({ symbol, compact }: Props) {
     return gradient;
   }
 
-  if (error) {
+  if (effectiveError) {
+    const isRateLimited = retryAfterSeconds !== null && retryAfterSeconds > 0;
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+          <div className="flex items-center justify-between gap-2">
+            <span>
+              {isRateLimited
+                ? `Too many requests — retrying in ${retryAfterSeconds} seconds`
+                : effectiveError}
+            </span>
+            {!isRateLimited && !noData && (
+              <button
+                type="button"
+                onClick={retry}
+                className="shrink-0 rounded px-2 py-0.5 text-xs font-medium text-zinc-100 transition-colors hover:bg-zinc-700"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -175,15 +177,15 @@ export default function StockChart({ symbol, compact }: Props) {
       </div>
 
       <div className={`relative ${compact ? "h-36 sm:h-44 md:h-52" : "h-72"} w-full`}>
-        {isLoading ? (
+        {isLoading || !candles ? (
           <div className="absolute inset-0 animate-pulse motion-reduce:animate-none rounded-lg bg-zinc-800" />
-        ) : candles ? (
+        ) : (
           <Line
             ref={chartRef}
             data={chartData}
             options={options}
           />
-        ) : null}
+        )}
       </div>
     </div>
   );
