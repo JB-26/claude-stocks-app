@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCompanyProfile } from "@/lib/finnhub/client";
 import { getCached, setCached } from "@/lib/cache";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { sanitizeUrl } from "@/lib/sanitize-url";
 import type { ProfileResponse } from "@/lib/finnhub/types";
 
 const PROFILE_TTL_MS = 60 * 60_000; // 1 hour — logos rarely change
@@ -34,7 +35,11 @@ export async function GET(request: Request) {
     const raw = await getCompanyProfile(symbol);
 
     const response: ProfileResponse = {
-      logo: raw.logo ?? "",
+      // Validate the logo URL from the external API before caching and
+      // sending to the client. Rejects http:, data:, javascript:, and any
+      // other non-https scheme. Falls back to an empty string so the
+      // CompanyLogo component gracefully renders nothing.
+      logo: sanitizeUrl(raw.logo ?? "") ?? "",
       name: raw.name ?? "",
     };
 

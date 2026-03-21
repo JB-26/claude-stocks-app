@@ -17,8 +17,13 @@ export interface RateLimitResult {
  * that route handlers can convert to a `Retry-After` header on 429 responses.
  */
 export function checkRateLimit(request: Request): RateLimitResult {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  // Use the LAST entry in X-Forwarded-For, not the first.
+  // The first entry is client-supplied and trivially spoofable.
+  // A trusted reverse proxy always appends the real connecting IP at the end,
+  // so the last entry is the one the proxy observed and cannot be forged by
+  // the client.
+  const xff = request.headers.get("x-forwarded-for");
+  const ip = xff ? (xff.split(",").at(-1)?.trim() ?? "unknown") : "unknown";
   const pathname = new URL(request.url).pathname;
   const key = `${ip}:${pathname}`;
   const now = Date.now();
