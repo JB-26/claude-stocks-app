@@ -24,8 +24,13 @@ const US_MIC_CODES = new Set([
 const SEARCH_TTL_MS = 60_000; // 60 seconds
 
 export async function GET(request: Request) {
-  if (!checkRateLimit(request)) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  const rateLimit = checkRateLimit(request);
+  if (!rateLimit.allowed) {
+    const retryAfterSeconds = Math.ceil(rateLimit.retryAfterMs / 1000);
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+    );
   }
 
   const { searchParams } = new URL(request.url);

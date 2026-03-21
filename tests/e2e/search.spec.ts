@@ -42,12 +42,21 @@ test("typing in the search bar shows a results dropdown", async ({ page }) => {
   await page.route("**/api/stock/search*", (route) =>
     route.fulfill({ json: SEARCH_FIXTURE })
   );
+  // Suppress the TickerTape — it renders AAPL in the DOM too, causing
+  // getByText("AAPL") to match multiple elements (strict-mode violation).
+  await page.route("**/api/stock/movers*", (route) =>
+    route.fulfill({ json: [] })
+  );
 
   await page.goto("/");
   await page.getByRole("searchbox").fill("Apple");
 
   await expect(page.getByText("APPLE INC")).toBeVisible();
-  await expect(page.getByText("AAPL")).toBeVisible();
+  // Scope to the search results listbox to avoid matching other AAPL text
+  // (e.g. recently-viewed chips or any other component that shows the ticker).
+  await expect(
+    page.getByRole("button", { name: /AAPL/ })
+  ).toBeVisible();
 });
 
 test("selecting a result navigates to the dashboard", async ({ page }) => {

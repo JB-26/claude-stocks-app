@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRetryableFetch } from "@/hooks/useRetryableFetch";
 import type { NewsArticle } from "@/lib/finnhub/types";
 
 interface Props {
@@ -10,26 +10,41 @@ interface Props {
 }
 
 export default function NewsFeed({ symbol }: Props) {
-  const [articles, setArticles] = useState<NewsArticle[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const url = `/api/stock/news?symbol=${symbol}`;
+  const {
+    data,
+    error,
+    isLoading,
+    retryAfterSeconds,
+    retry,
+  } = useRetryableFetch<{ articles: NewsArticle[] }>(url, {
+    label: "news",
+  });
 
-  useEffect(() => {
-    setArticles(null);
-    setError(null);
-
-    fetch(`/api/stock/news?symbol=${symbol}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch news");
-        return res.json() as Promise<{ articles: NewsArticle[] }>;
-      })
-      .then((data) => setArticles(data.articles))
-      .catch(() => setError("Unable to load news. Please try again."));
-  }, [symbol]);
+  const articles = data?.articles ?? null;
 
   if (error) {
+    const isRateLimited = retryAfterSeconds !== null && retryAfterSeconds > 0;
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+          <div className="flex items-center justify-between gap-2">
+            <span>
+              {isRateLimited
+                ? `Too many requests — retrying in ${retryAfterSeconds} seconds`
+                : error}
+            </span>
+            {!isRateLimited && (
+              <button
+                type="button"
+                onClick={retry}
+                className="shrink-0 rounded px-2 py-0.5 text-xs font-medium text-zinc-100 transition-colors hover:bg-zinc-700"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -40,7 +55,7 @@ export default function NewsFeed({ symbol }: Props) {
         Latest News
       </h2>
 
-      {!articles ? (
+      {isLoading || !articles ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
