@@ -84,32 +84,35 @@ Deno.test("ratelimit RL-04: exhausting limit on one route does not affect a diff
 });
 
 // ---------------------------------------------------------------------------
-// RL-05: x-forwarded-for with multiple IPs — only first value used as key
+// RL-05: x-forwarded-for with multiple IPs — only last (rightmost) value used
+//        as the key. The rightmost value is appended by the trusted proxy and
+//        cannot be forged by the client, preventing rate-limit bypass.
 // ---------------------------------------------------------------------------
 
-Deno.test("ratelimit RL-05: x-forwarded-for with proxy chain uses only the first IP as the key", () => {
-  // Exhaust the limit for 1.2.3.4 on this path
+Deno.test("ratelimit RL-05: x-forwarded-for with proxy chain uses only the last IP as the key", () => {
   const path = "/api/stock/rl05";
+
+  // Exhaust the limit for 5.6.7.8 (the rightmost/trusted IP)
   for (let i = 0; i < 30; i++) {
-    checkRateLimit(makeRequest("1.2.3.4", path));
+    checkRateLimit(makeRequest("5.6.7.8", path));
   }
-  // 31st request for 1.2.3.4 should be rejected
+  // 31st request for 5.6.7.8 alone should be rejected
   const rejectedReq = new Request(`http://localhost${path}`, {
-    headers: { "x-forwarded-for": "1.2.3.4" },
+    headers: { "x-forwarded-for": "5.6.7.8" },
   });
   assertEquals(checkRateLimit(rejectedReq).allowed, false);
 
   // A request with "1.2.3.4, 5.6.7.8" should also be rejected because
-  // the extracted IP is "1.2.3.4" (same exhausted key)
+  // the extracted IP is "5.6.7.8" (rightmost — same exhausted key)
   const chainedReq = new Request(`http://localhost${path}`, {
     headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
   });
   assertEquals(checkRateLimit(chainedReq).allowed, false);
 
-  // A fresh request for "5.6.7.8" alone on the same path is still allowed,
-  // confirming that 5.6.7.8 is a separate key
+  // A fresh request for "1.2.3.4" alone on the same path is still allowed,
+  // confirming that 1.2.3.4 is treated as a separate key
   const freshReq = new Request(`http://localhost${path}`, {
-    headers: { "x-forwarded-for": "5.6.7.8" },
+    headers: { "x-forwarded-for": "1.2.3.4" },
   });
   assertEquals(checkRateLimit(freshReq).allowed, true);
 });

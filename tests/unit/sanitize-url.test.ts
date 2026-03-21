@@ -11,12 +11,12 @@ Deno.test("sanitizeUrl SU-01: https URL returns non-null", () => {
 });
 
 // ---------------------------------------------------------------------------
-// SU-02: http URL — allowed
+// SU-02: http URL — rejected (only https is allowed; http is plaintext and
+//        could expose users to MITM attacks via news/logo links)
 // ---------------------------------------------------------------------------
 
-Deno.test("sanitizeUrl SU-02: http URL returns non-null", () => {
-  const result = sanitizeUrl("http://example.com/article");
-  assertNotEquals(result, null);
+Deno.test("sanitizeUrl SU-02: http URL returns null", () => {
+  assertEquals(sanitizeUrl("http://example.com/article"), null);
 });
 
 // ---------------------------------------------------------------------------
