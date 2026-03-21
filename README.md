@@ -64,12 +64,12 @@ Joshua suggested adding a GitHub Actions workflow so that tests would run automa
 | Layer | Technology |
 |---|---|
 | Runtime | Deno 2.x |
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16.x (App Router) |
 | Language | TypeScript (strict mode) |
 | Styling | Tailwind CSS v4 |
 | UI Components | Shadcn |
 | Charting | Chart.js + react-chartjs-2 |
-| Stock data | Finnhub (search, quotes, news, company profile) |
+| Stock data | Finnhub (search, quotes, news, company profile, market movers) |
 | Historical data | Yahoo Finance (price chart) |
 | Unit testing | Deno built-in test library |
 | E2E testing | Playwright |
@@ -104,9 +104,21 @@ deno task dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-### Running Tests
+### All Available Commands
 
 ```bash
+# Start the development server
+deno task dev
+
+# Build for production
+deno task build
+
+# Start the production server
+deno task start
+
+# Run the linter
+deno task lint
+
 # Unit tests
 deno task test
 
@@ -122,22 +134,41 @@ deno task test:e2e
 ├── app/
 │   ├── page.tsx                  # Homepage (search bar + title + footer)
 │   ├── dashboard/page.tsx        # Dashboard page
-│   └── api/stock/                # API route handlers (proxy to Finnhub / Yahoo Finance)
+│   └── api/stock/
+│       ├── search/               # GET /api/stock/search?q= — Finnhub symbol search
+│       ├── quote/                # GET /api/stock/quote?symbol= — current price + market status
+│       ├── candles/              # GET /api/stock/candles?symbol=&range= — Yahoo Finance OHLC
+│       ├── news/                 # GET /api/stock/news?symbol= — Finnhub company news
+│       ├── profile/              # GET /api/stock/profile?symbol= — company logo + profile
+│       └── movers/               # GET /api/stock/movers — market movers (top gainers/losers)
 ├── components/
-│   ├── search/                   # SearchBar, SearchResults
-│   ├── dashboard/                # PriceHeader, StockChart, NewsFeed, CompanySelector, CompanyLogo
-│   └── layout/                   # Header, Footer
+│   ├── search/                   # SearchBar, SearchResults, RecentlyViewedChips
+│   ├── dashboard/                # PriceHeader, StockChart, NewsFeed, CompanySelector,
+│   │                             # CompanyLogo, CompanyPanel, KeyMetrics, ViewSelector,
+│   │                             # WatchlistButton, PlaceholderPanel, ChartWrapper
+│   ├── homepage/                 # TickerTape
+│   └── layout/                   # Footer
 ├── lib/
 │   ├── finnhub/                  # Typed Finnhub API client + types
 │   ├── yahoo.ts                  # Yahoo Finance historical data client
 │   ├── cache.ts                  # Server-side TTL cache
+│   ├── ratelimit.ts              # Per-IP rate limiting middleware
+│   ├── sanitize-url.ts           # Query parameter sanitisation helpers
+│   ├── session.ts                # Session utilities
+│   ├── view.ts                   # View/layout mode helpers
+│   ├── watchlist.ts              # Watchlist persistence logic
 │   └── utils.ts                  # Date helpers, number formatters
 ├── hooks/
-│   └── useDebounce.ts
+│   ├── useDebounce.ts
+│   └── useRetryableFetch.ts
 ├── tests/
-│   ├── unit/                     # Deno unit tests
-│   └── e2e/                      # Playwright E2E tests
+│   ├── unit/                     # Deno unit tests (cache, utils, finnhub client, ratelimit,
+│   │                             # sanitize-url, view params, search route, key-metrics,
+│   │                             # watchlist, retryable-fetch)
+│   └── e2e/                      # Playwright E2E tests (homepage, search, dashboard,
+│                                 # view-modes, five-focuses)
 ├── architecture.md               # Full technical plan (Solution Architect agent)
+├── feature-report.md             # Feature analysis report
 ├── test-plan.md                  # Full test strategy (QA Strategist agent)
 └── requirements-documentation.md # Product requirements (Joshua Blewitt)
 ```
@@ -148,5 +179,6 @@ deno task test:e2e
 
 - The Finnhub API key is stored in `.env.local` and never committed.
 - All external API calls are proxied through Next.js Route Handlers on the server — the key is never sent to the browser.
-- The `server-only` package guards `lib/finnhub/client.ts` against accidental client-side imports.
-- Input parameters (`symbol`, `range`, search query) are validated and sanitised in every Route Handler before being forwarded upstream.
+- The `server-only` package guards `lib/finnhub/client.ts` and `lib/yahoo.ts` against accidental client-side imports.
+- Input parameters (`symbol`, `range`, search query) are validated and sanitised via `lib/sanitize-url.ts` in every Route Handler before being forwarded upstream.
+- Per-IP rate limiting is enforced on all API routes via `lib/ratelimit.ts`.
