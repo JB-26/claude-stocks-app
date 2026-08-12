@@ -12,8 +12,13 @@
 export const WATCHLIST_KEY = "watchlist";
 export const MAX_WATCHLIST = 20;
 
-/** A symbol regex matching the server-side quote route validation. */
-const SYMBOL_RE = /^[A-Z]{1,10}$/;
+/**
+ * A symbol regex matching the server-side quote route validation.
+ *
+ * Exported so server-side validation (lib/watchlist-quotes-validation.ts) can
+ * share this single definition rather than adding another duplicate.
+ */
+export const SYMBOL_RE = /^[A-Z]{1,10}$/;
 
 /** The persisted type: an ordered array of uppercase ticker symbols. */
 export type Watchlist = string[];
@@ -47,9 +52,38 @@ export function getWatchlist(): Watchlist {
     if (!Array.isArray(parsed)) return [];
     // Filter to ensure only valid string symbols are returned — guards against
     // corrupted or externally modified localStorage values.
-    return parsed.filter(
+    const valid = parsed.filter(
       (item): item is string => typeof item === "string" && SYMBOL_RE.test(item)
     );
+    // De-duplicate, preserving first-occurrence order — another form of the
+    // same "corrupted or externally modified localStorage" defense above.
+    // '["AAPL","AAPL"]' is valid JSON and passes the filter above unchanged;
+    // without this, callers that key React lists by symbol (WatchlistPanel)
+    // would render duplicate keys, and removing one occurrence would strip
+    // both since removeFromWatchlist filters by symbol equality.
+    const seen = new Set<string>();
+    const deduped: string[] = [];
+    for (const symbol of valid) {
+      if (!seen.has(symbol)) {
+        seen.add(symbol);
+        deduped.push(symbol);
+      }
+    }
+    // Cap at MAX_WATCHLIST — the last line of defense against corrupted or
+    // externally modified localStorage, matching the shape/regex filter and
+    // de-dup above. addToWatchlist() enforces the cap on write, but this
+    // read path is the one explicitly hardened against storage that didn't
+    // go through addToWatchlist at all (hand-edited devtools, a future bug
+    // elsewhere, a shared/synced profile). Without this, a caller could hand
+    // more than MAX_WATCHLIST symbols to the server's watchlist-quotes
+    // route, whose validator (lib/watchlist-quotes-validation.ts) treats
+    // exceeding the cap as a hard 400 error rather than truncating — its
+    // docstring justifies that hard error with "a spec-compliant client can
+    // never legitimately exceed the cap", which this read path must
+    // actually guarantee for that reasoning to hold. Keeping the first
+    // MAX_WATCHLIST entries (rather than the last) matches addToWatchlist's
+    // "most-recently-added" ordering, where index 0 is most recent.
+    return deduped.slice(0, MAX_WATCHLIST);
   } catch {
     return [];
   }

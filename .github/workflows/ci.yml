@@ -1,8 +1,14 @@
 name: CI
 
 on:
+  # Feature branches are covered by the pull_request trigger below. Running on
+  # push as well meant every push to a branch with an open PR ran the whole
+  # suite twice — two jobs per run, each downloading Deno from the GitHub
+  # releases CDN, so four downloads per push and four chances to hit a
+  # transient "socket hang up" in setup-deno. A flake in the redundant run
+  # then showed a red X against an otherwise healthy commit.
   push:
-    branches: [main, 'feature/**', 'features/**', 'fix/**', 'chore/**', 'test/**', 'docs/**']
+    branches: [main]
   pull_request:
     branches: [main]
 
