@@ -115,6 +115,57 @@ export interface TickerMover {
   changePercent: number;
 }
 
+/**
+ * A single symbol's quote result within a watchlist batch request.
+ *
+ * Unlike TickerMover, a failed lookup is never dropped from the response — it
+ * is returned with status "error" and null numeric fields so the client can
+ * still render the row. A watchlist is a deliberately curated list; a silently
+ * missing entry reads as data loss to the user.
+ */
+export interface WatchlistQuoteEntry {
+  symbol: string;
+  status: "ok" | "error";
+  price: number | null;
+  change: number | null;
+  changePercent: number | null;
+  /**
+   * Why this row has no price. Present only when status is "error".
+   *
+   * The distinction is load-bearing for the client, which must treat the two
+   * classes differently rather than rendering every failure identically:
+   *
+   * - "unavailable" — a property of the SYMBOL. Finnhub answered and the
+   *   answer was unusable (non-positive price, i.e. an unknown ticker).
+   *   Polling again produces the same result. The row is legitimately dataless.
+   * - "deferred" — a property of THIS SERVER, RIGHT NOW. The symbol was never
+   *   contacted, because the upstream budget was spent or the request deadline
+   *   was reached. It says nothing about the symbol, and the next poll may well
+   *   succeed. Must never be cached as a symbol-level fact.
+   * - "failed" — an upstream call was attempted and errored or timed out.
+   *   Transient and retryable.
+   *
+   * A client must NOT overwrite a previously-good price with a "deferred" or
+   * "failed" row — the price it already holds is still the best data it has.
+   */
+  reason?: "unavailable" | "deferred" | "failed";
+}
+
+/** Response body for GET /api/stock/watchlist-quotes */
+export interface WatchlistQuotesResponse {
+  quotes: WatchlistQuoteEntry[];
+  /**
+   * True when at least one row is "deferred" — the server ran out of upstream
+   * capacity or time and knowingly returned incomplete data.
+   *
+   * This field exists because a capacity shortage otherwise reaches the client
+   * as an ordinary HTTP 200 full of error rows, indistinguishable from success,
+   * leaving the user staring at em-dashes with no explanation. A degraded
+   * response is a success-shaped failure and has to be surfaced as one.
+   */
+  degraded: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Shared constants used by both the Route Handler and StockChart
 // ---------------------------------------------------------------------------
