@@ -1,10 +1,26 @@
 import { test, expect } from "@playwright/test";
+import { Buffer } from "node:buffer";
 
 // ---------------------------------------------------------------------------
 // Amazon BDD Scenarios
 // Fixtures are derived from live Finnhub data observed on 2026-05-25.
 // All API routes are mocked — tests never hit a live external service.
+// That includes the company logo image: the profile fixture points at a real
+// finnhub CDN URL, and CompanyLogo unmounts the <img> via its onError handler
+// if the asset fails to load. Left unmocked, the logo assertion depends on
+// live CDN egress from the test runner. See LOGO_URL_GLOB below.
 // ---------------------------------------------------------------------------
+
+// A valid 1x1 transparent PNG, served in place of the real logo asset so the
+// icon assertion tests our wiring (profile.logo -> <img>) rather than the
+// runner's network.
+const TRANSPARENT_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64"
+);
+
+// Matches the fixture host and any redirect target (static2 -> static9, etc).
+const LOGO_URL_GLOB = "**/finnhubimage/**";
 
 const AMAZON_SEARCH_FIXTURE = {
   results: [
@@ -82,6 +98,17 @@ function mockAmazonDashboard(
   );
   page.route("**/api/stock/profile*", (route) =>
     route.fulfill({ json: AMAZON_PROFILE_FIXTURE })
+  );
+  // Serve the logo asset locally. Without this the browser makes a real
+  // request to the finnhub CDN; on a failure or timeout CompanyLogo's
+  // onError handler sets imgFailed and the component returns null, so the
+  // icon assertion fails with "element(s) not found".
+  page.route(LOGO_URL_GLOB, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: TRANSPARENT_PNG,
+    })
   );
 }
 
