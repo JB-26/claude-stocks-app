@@ -1,5 +1,5 @@
 import SearchBar from "@/components/search/SearchBar";
-import RecentlyViewedChips from "@/components/search/RecentlyViewedChips";
+import WatchlistSection from "@/components/homepage/WatchlistSection";
 import Footer from "@/components/layout/Footer";
 import TickerTape from "@/components/homepage/TickerTape";
 import { isMarketOpen, getNextMarketOpenLabel } from "@/lib/utils";
@@ -38,7 +38,7 @@ export default function Home() {
 
           <SearchBar />
 
-          <RecentlyViewedChips />
+          <WatchlistSection />
         </div>
       </main>
       <Footer />
